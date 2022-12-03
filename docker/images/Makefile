@@ -1,6 +1,11 @@
 builder:
 
-.PHONY:	builder-amd64 builder-arm64v8 custom-jenkins-docker
+.PHONY:	builder-amd64 builder-arm64v8 custom-jenkins-docker all
+
+all:
+	make builder-amd64
+	make builder-arm64v8
+	make custom-jenkins-docker
 
 builder-amd64:
 	cd amd64 && docker build -t builder-amd64 .
