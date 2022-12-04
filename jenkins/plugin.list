@@ -43,6 +43,7 @@ pipeline-stage-step
 javadoc
 cloudbees-folder
 script-security
+saferestart
 jquery3-api
 pipeline-model-api
 workflow-support
