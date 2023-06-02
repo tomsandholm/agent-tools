@@ -25,3 +25,8 @@ builder-ppc64le:
 
 builder-s390x:
 	cd s390x && docker build -t builder-s390x .
+
+new-jenkins:
+	docker stop jenkins-controller
+	docker rm jenkins-controller
+
