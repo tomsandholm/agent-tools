@@ -1,5 +1,4 @@
 FROM s390x/ubuntu
-MAINTAINER tom sandholm
 RUN apt-get update
 RUN apt-get install -y openssh-server build-essential default-jdk git autoconf automake libtool checkinstall sudo vim
 RUN useradd -rm -d /home/jenkins -s /bin/bash -g root -G sudo jenkins -p "$(openssl passwd -1 jenkins)"

@@ -9,7 +9,7 @@ builder-amd64:
 	cd amd64 && docker build -t builder-amd64 .
 
 builder-arm64v8:
-	cd arm64v8 && docker build -t builder-arm64v8 .
+	cd arm64v8 && docker build --platform linux/arm64 -t builder-arm64v8 . 
 
 builder-arm32v7:
 	cd arm32v7 && docker build -t builder-arm32v7 .
@@ -24,7 +24,7 @@ builder-ppc64le:
 	cd ppc64le && docker build -t builder-ppc64le .
 
 builder-s390x:
-	cd s390x && docker build -t builder-s390x .
+	cd s390x && docker build --platform linux/s390x -t builder-s390x .
 
 new-jenkins:
 	docker stop jenkins-controller
