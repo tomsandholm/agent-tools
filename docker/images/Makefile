@@ -21,7 +21,7 @@ builder-i386:
 	cd i386 && docker build -t builder-i386 .
 
 builder-ppc64le:
-	cd ppc64le && docker build -t builder-ppc64le .
+	cd ppc64le && docker build -t builder-ppc64le --platform ppc64le .
 
 builder-s390x:
 	cd s390x && docker build --platform linux/s390x -t builder-s390x .
