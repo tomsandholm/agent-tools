@@ -17,6 +17,9 @@ builder-arm32v7:
 custom-jenkins-docker:
 	cd jendock && docker build -t custom-jenkins-docker .
 
+get-secret:
+	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
 builder-i386:
 	cd i386 && docker build -t builder-i386 .
 
