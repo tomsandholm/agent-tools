@@ -32,11 +32,14 @@ cloudbees-folder
 commons-collections4-api
 commons-lang3-api
 commons-text-api
+copyartifact
 credentials
 credentials-binding
 display-url-api
 docker-commons
 docker-workflow
+docker-plugin
+docker-java-api
 durable-task
 echarts-api
 favorite
