@@ -71,6 +71,7 @@ mina-sshd-api-common
 mina-sshd-api-core
 okhttp-api
 pipeline-build-step
+pipeline-stage-view
 pipeline-graph-analysis
 pipeline-groovy-lib
 pipeline-input-step
