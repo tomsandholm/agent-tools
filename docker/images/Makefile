@@ -33,3 +33,17 @@ new-jenkins:
 	docker stop jenkins-controller
 	docker rm jenkins-controller
 
+jenkins-stop:
+	docker stop jenkins-controller
+	docker rm jenkins-controller
+
+jenkins-start:
+	docker run -u jenkins:jenkins \
+		--name jenkins-controller \
+		-d \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v jenkins-vol:/var/jenkins_home \
+		-p 8080:8080 \
+		-p 50000:50000 \
+		--restart=on-failure custom-jenkins-docker
+

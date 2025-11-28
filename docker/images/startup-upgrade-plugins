@@ -4,5 +4,5 @@
 # /var/jenkins_home in the container.  This way your settings and plugins are saved in the host
 # volume, the restart will ensure the jenkins stays running.
 #docker run --name jenkins-controller -d -v /var/lib/jenkins:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure custom-jenkins-docker
-docker run -u jenkins:jenkins --name jenkins-controller -d -v /var/run/docker.sock:/var/run/docker.sock -v jenkins-vol:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure custom-jenkins-docker
+docker run -e PLUGINS_FORCE_UPGRADE=true -u jenkins:jenkins --name jenkins-controller -d -v /var/run/docker.sock:/var/run/docker.sock -v jenkins-vol:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure custom-jenkins-docker
 
