@@ -38,7 +38,8 @@ jenkins-stop:
 	docker rm jenkins-controller
 
 jenkins-start:
-	docker run -u jenkins:jenkins \
+	docker run \
+		-u jenkins:jenkins \
 		--name jenkins-controller \
 		-d \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -47,3 +48,23 @@ jenkins-start:
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
 
+jenkins-delete:
+	docker image rm custom-jenkins-docker
+
+jenkins-start-plugin-upgrade:
+	docker run \
+		-e PLUGINS_FORCE_UPGRADE=true \
+		-u jenkins:jenkins \
+		--name jenkins-controller \
+		-d \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v jenkins-vol:/var/jenkins_home \
+		-p 8080:8080 \
+		-p 50000:50000 \
+		--restart=on-failure custom-jenkins-docker
+
+jenkins-shell:
+	docker exec -it jenkins-controller bash
+
+jenkins-shell-root:
+	docker exec -u root -it jenkins-controller bash
