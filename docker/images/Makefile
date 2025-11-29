@@ -117,10 +117,13 @@ jenkins-push-tools:
 
 # will return a list of jobs to stdout
 # depends on toke and list-jobs script on docker-container
+# supress the command echo so we can save to file without needing edits.
 jenkins-list-jobs:
-	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-jobs'
+	@docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-jobs'
 
 # will return a list of plugins to stdout, no version data returned
 # depends on token and list-plugins script on docker-container
+# make this thing quiet so do not print the execution line, thus the @ in the command.  We want to save 
+# directly to a file without needing any edits.
 jenkins-list-plugins:
-	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null
+	@docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null 
