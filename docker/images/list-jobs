@@ -1,0 +1,4 @@
+#! /usr/bin/bash
+
+CLI=/usr/share/jenkins/jenkins-cli.jar
+java -jar $CLI -auth admin:$(</usr/share/jenkins/token) -s http://localhost:8080/ list-jobs
