@@ -56,10 +56,12 @@ builder-ppc64le:
 builder-s390x:
 	cd s390x && docker build --platform linux/s390x -t builder-s390x .
 
+# stop the container
 jenkins-stop:
 	docker stop jenkins-controller
 	docker rm jenkins-controller
 
+# start the container
 jenkins-start:
 	docker run \
 		-u jenkins:jenkins \
@@ -71,6 +73,7 @@ jenkins-start:
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
 
+# remove the custom-jenkins-dockre image
 jenkins-delete:
 	docker image rm custom-jenkins-docker
 
@@ -86,27 +89,38 @@ jenkins-start-plugin-upgrade:
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
 
+# connect to container as user jenkins
 jenkins-shell:
 	docker exec -it jenkins-controller bash
 
+# connect to container as root
 jenkins-shell-root:
 	docker exec -u root -it jenkins-controller bash
 
+# populate container /usr/share/jenkins with the jenkins-cli.jar
 jenkins-get-cli:
 	docker exec -u root -it jenkins-controller bash -c 'cd /usr/share/jenkins && wget http://localhost:8080/jnlpJars/jenkins-cli.jar'
 
+# run a full jenkins_home backup
 jenkins-bulk-backup:
 	mkdir -p $(BACKUP_DIR)
 	docker cp jenkins-controller:/var/jenkins_home $(BACKUP_DIR)
 
-jenkins-list-jobs:
-	make jenkins-get-cli
+# copy the authentication token to container in /usr/share/jenkins
+jenkins-push-token:
 	docker cp token jenkins-controller:/usr/share/jenkins
+
+# copy the tools to docker container in /usr/local/bin
+jenkins-push-tools:
 	docker cp list-jobs jenkins-controller:/usr/local/bin
+	docker cp list-plugins jenkins-controller:/usr/local/bin
+
+# will return a list of jobs to stdout
+# depends on toke and list-jobs script on docker-container
+jenkins-list-jobs:
 	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-jobs'
 
+# will return a list of plugins to stdout, no version data returned
+# depends on token and list-plugins script on docker-container
 jenkins-list-plugins:
-	#make -s jenkins-get-cli
-	#docker cp -q --quiet token jenkins-controller:/usr/share/jenkins
-	#docker cp -q --quiet list-plugins jenkins-controller:/usr/local/bin
 	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null
