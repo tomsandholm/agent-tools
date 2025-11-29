@@ -3,12 +3,12 @@
 JENKINS_URL="http://localhost:8080/" # Replace with your Jenkins URL
 JENKINS_CLI_JAR="/usr/share/jenkins/jenkins-cli.jar" # Replace with the actual path to jenkins-cli.jar
 
-UPDATE_LIST=$(java -jar "${JENKINS_CLI_JAR}" -s "${JENKINS_URL}" list-plugins | grep -e ')$' | awk '{ print $1 }')
+UPDATE_LIST=$(java -jar "${JENKINS_CLI_JAR}" -auth admin:$(</usr/share/jenkins/token) -s "${JENKINS_URL}" list-plugins | grep -e ')$' | awk '{ print $1 }')
 
 if [ ! -z "${UPDATE_LIST}" ]; then
     echo "Updating Jenkins Plugins: ${UPDATE_LIST}"
-    java -jar "${JENKINS_CLI_JAR}" -s "${JENKINS_URL}" install-plugin ${UPDATE_LIST}
-    java -jar "${JENKINS_CLI_JAR}" -s "${JENKINS_URL}" safe-restart
+    java -jar "${JENKINS_CLI_JAR}" -auth admin:$(</usr/share/jenkins/token) -s "${JENKINS_URL}" install-plugin ${UPDATE_LIST}
+    java -jar "${JENKINS_CLI_JAR}" -auth admin:$(</usr/share/jenkins/token) -s "${JENKINS_URL}" safe-restart
 else
     echo "No Jenkins plugins require updating."
 fi

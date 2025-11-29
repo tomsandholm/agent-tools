@@ -100,4 +100,13 @@ jenkins-bulk-backup:
 	docker cp jenkins-controller:/var/jenkins_home $(BACKUP_DIR)
 
 jenkins-list-jobs:
-	docker exec jenkins-controller bash -c 'java -jar /usr/share/jenkins/jenkins-cli.jar -auth admin:$(</usr/share/jenkins/token) -s http://localhost:8080/ list-jobs'
+	make jenkins-get-cli
+	docker cp token jenkins-controller:/usr/share/jenkins
+	docker cp list-jobs jenkins-controller:/usr/local/bin
+	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-jobs'
+
+jenkins-list-plugins:
+	#make -s jenkins-get-cli
+	#docker cp -q --quiet token jenkins-controller:/usr/share/jenkins
+	#docker cp -q --quiet list-plugins jenkins-controller:/usr/local/bin
+	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null
