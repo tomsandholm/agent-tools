@@ -114,6 +114,8 @@ jenkins-push-token:
 jenkins-push-tools:
 	docker cp list-jobs jenkins-controller:/usr/local/bin
 	docker cp list-plugins jenkins-controller:/usr/local/bin
+	docker cp update-plugins jenkins-controller:/usr/local/bin
+	docker cp plugin-list jenkins-controller:/usr/share/jenkins
 
 # will return a list of jobs to stdout
 # depends on toke and list-jobs script on docker-container
@@ -126,4 +128,7 @@ jenkins-list-jobs:
 # make this thing quiet so do not print the execution line, thus the @ in the command.  We want to save 
 # directly to a file without needing any edits.
 jenkins-list-plugins:
-	@docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null 
+	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null 
+
+jenkins-update-plugins:
+	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/update-plugins' 2>/dev/null 

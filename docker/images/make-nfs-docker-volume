@@ -1,0 +1,7 @@
+#! /bin/bash
+# vi:set nu ai ap aw smd showmatch tabstop=4 shiftwidth=4:
+#
+docker volume create --driver local \
+  --opt type=nfs \
+  --opt o=addr=10.0.0.150,rw,nfsvers=4 \
+  --opt device=:/srv/nfs_share jenkins-vol 
