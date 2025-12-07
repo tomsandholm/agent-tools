@@ -99,7 +99,7 @@ jenkins-shell-root:
 
 # populate container /usr/share/jenkins with the jenkins-cli.jar
 jenkins-get-cli:
-	docker exec -u root -it jenkins-controller bash -c 'cd /usr/share/jenkins && wget http://localhost:8080/jnlpJars/jenkins-cli.jar'
+	docker exec -u root -it jenkins-controller bash -c 'cd /usr/share/jenkins && [ -f jenkins-cli.jar ] || wget http://localhost:8080/jnlpJars/jenkins-cli.jar'
 
 # run a full jenkins_home backup
 jenkins-bulk-backup:
@@ -115,7 +115,7 @@ jenkins-push-tools:
 	docker cp list-jobs jenkins-controller:/usr/local/bin
 	docker cp list-plugins jenkins-controller:/usr/local/bin
 	docker cp update-plugins jenkins-controller:/usr/local/bin
-	docker cp plugin-list jenkins-controller:/usr/share/jenkins
+	docker cp list-plugins jenkins-controller:/usr/share/jenkins
 
 # will return a list of jobs to stdout
 # depends on toke and list-jobs script on docker-container
