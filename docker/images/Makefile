@@ -68,7 +68,7 @@ jenkins-start:
 		--name jenkins-controller \
 		-d \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v jenkins-vol:/var/jenkins_home \
+		-v /srv/nfs_share:/var/jenkins_home \
 		-p 8080:8080 \
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
@@ -99,7 +99,7 @@ jenkins-shell-root:
 
 # populate container /usr/share/jenkins with the jenkins-cli.jar
 jenkins-get-cli:
-	docker exec -u root -it jenkins-controller bash -c 'cd /usr/share/jenkins && [ -f jenkins-cli.jar ] || wget http://localhost:8080/jnlpJars/jenkins-cli.jar'
+	@docker exec -u root -it jenkins-controller bash -c 'cd /usr/share/jenkins && [ -f jenkins-cli.jar ] || wget http://localhost:8080/jnlpJars/jenkins-cli.jar'
 
 # run a full jenkins_home backup
 jenkins-bulk-backup:
@@ -128,7 +128,8 @@ jenkins-list-jobs:
 # make this thing quiet so do not print the execution line, thus the @ in the command.  We want to save 
 # directly to a file without needing any edits.
 jenkins-list-plugins:
-	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null 
+	@make --no-print-directory jenkins-get-cli
+	@docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/list-plugins' 2>/dev/null 
 
 jenkins-update-plugins:
 	docker exec -u root -it jenkins-controller bash -c '/usr/local/bin/update-plugins' 2>/dev/null 
