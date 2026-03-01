@@ -2,7 +2,9 @@
 # vi:set nu ai ap aw smd showmatch tabstop=4 shiftwidth=4:
 
 SERVER="http://jendock.tsand.org:8080"
-AUTH="jenkins:jenkins"
+TOKEN="11cd9b42c2299b18f9d29fef66e653f21a"
+AUTH="jenkins:${TOKEN}"
+
 
 UPDATE_LIST=$( java -jar ./jenkins-cli.jar -auth $AUTH -s ${SERVER} list-plugins | grep -e ')$' | awk '{ print $1 }' ); 
 if [ ! -z "${UPDATE_LIST}" ]; then 
