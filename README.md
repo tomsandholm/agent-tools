@@ -14,7 +14,7 @@ The Makefile builds **Docker images** for Jenkins and multi-arch **builder agent
 
 ### Jenkins controller lifecycle
 
-- **'docker/images/startup`** - This is the startup docker line to run jenkins.
+- **`docker/images/startup`** - This is the startup docker script to run jenkins.
 - **`jenkins-start`** — Run `custom-jenkins-docker` detached with Docker socket, NFS mount at `/srv/nfs_share` → `/var/jenkins_home`, ports 8080 and 50000.
 - **`jenkins-start-plugin-upgrade`** — Same idea but `PLUGINS_FORCE_UPGRADE=true` and a Docker volume `jenkins-vol` for home instead of NFS.
 - **`jenkins-stop`** — Stop and remove `jenkins-controller`.
