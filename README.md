@@ -1,6 +1,7 @@
-## Summary of `docker/images/Makefile`
+## Summary of AGENT-TOOLS
 
-This Makefile builds **Docker images** for Jenkins and multi-arch **builder agents**, and **runs operational helpers** against a running Jenkins container named `jenkins-controller`.
+This is a collection of tools to support running jenkins in docker.  The jenkins folder has tools to connect to a running docker image for management.
+The Makefile builds **Docker images** for Jenkins and multi-arch **builder agents**, and **runs operational helpers** against a running Jenkins container named `jenkins-controller`.
 
 ### Image builds
 
