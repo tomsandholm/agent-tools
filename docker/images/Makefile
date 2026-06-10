@@ -68,7 +68,8 @@ jenkins-start:
 		--name jenkins-controller \
 		-d \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v /srv/nfs_share:/var/jenkins_home \
+		-v jenkins-vol:/var/jenkins_home \
+		-v jenkins-bkup:/backup \
 		-p 8080:8080 \
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
