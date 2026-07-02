@@ -72,6 +72,7 @@ jenkins-start:
 		-v jenkins-bkup:/backup \
 		-p 8080:8080 \
 		-p 50000:50000 \
+		-e JAVA_OPTS="-Dhudson.model.DirectoryBrowserSupport.CSP= -Djenkins.RESOURCE_BUNDLE_MODE=false" \
 		--restart=on-failure custom-jenkins-docker
 
 # remove the custom-jenkins-dockre image
