@@ -73,6 +73,7 @@ okhttp-api
 pipeline-build-step
 pipeline-stage-view
 pipeline-graph-analysis
+pipeline-graph-view
 pipeline-groovy-lib
 pipeline-input-step
 pipeline-milestone-step
