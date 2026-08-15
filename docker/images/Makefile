@@ -76,7 +76,7 @@ jenkins-start:
 
 # remove the custom-jenkins-dockre image
 jenkins-delete:
-	docker image rm custom-jenkins-docker
+	docker image rmi custom-jenkins-docker
 
 jenkins-start-plugin-upgrade:
 	docker run \

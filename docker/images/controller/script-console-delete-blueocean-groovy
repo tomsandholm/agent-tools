@@ -1,0 +1,6 @@
+def pm = Jenkins.instance.pluginManager
+pm.plugins.findAll { it.shortName.startsWith("blueocean") || it.shortName == "blueocean" }.each { plugin ->
+    println "Uninstalling: ${plugin.shortName}"
+    plugin.doDoUninstall()
+}
+
