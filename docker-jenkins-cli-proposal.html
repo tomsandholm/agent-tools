@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Turn-key Jenkins from the command line</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #171d24;
+      --text: #e7ecf1;
+      --muted: #9aa7b4;
+      --accent: #4c8dff;
+      --line: #2a333d;
+      --ok: #3d9a6a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: "Segoe UI", Calibri, sans-serif; }
+    .deck { max-width: 1100px; margin: 0 auto; padding: 28px 32px 80px; }
+    nav { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    nav button, .pill {
+      background: var(--panel); color: var(--text); border: 1px solid var(--line);
+      padding: 6px 12px; border-radius: 999px; cursor: pointer; font-size: 13px;
+    }
+    .pill.active, nav button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    nav .spacer { flex: 1; }
+    nav .count { color: var(--muted); font-size: 13px; }
+    .bar { height: 2px; background: var(--line); margin-bottom: 24px; }
+    .bar > div { height: 2px; background: var(--accent); }
+    .slide { display: none; }
+    .slide.on { display: block; }
+    h1 { font-size: 32px; font-weight: 600; margin: 8px 0 12px; }
+    h2 { font-size: 24px; font-weight: 600; margin: 4px 0 12px; }
+    .kicker { color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    p { color: var(--muted); line-height: 1.5; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+    .stats.three { grid-template-columns: repeat(3, 1fr); }
+    .stat { background: var(--panel); border: 1px solid var(--line); padding: 14px; }
+    .stat strong { display: block; font-size: 22px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .callout { border: 1px solid var(--line); background: var(--panel); padding: 12px 14px; margin-top: 16px; }
+    .callout b { display: block; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 13px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--line); padding: 14px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .tag { float: right; font-size: 11px; color: var(--muted); border: 1px solid var(--line); padding: 2px 8px; border-radius: 999px; }
+    pre { background: var(--panel); border: 1px solid var(--line); padding: 12px; overflow: auto; font-size: 13px; color: var(--text); }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .note { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <nav>
+      <button class="pill" data-jump="0">Pitch</button>
+      <button class="pill" data-jump="2">Architecture</button>
+      <button class="pill" data-jump="4">Makefile</button>
+      <button class="pill" data-jump="6">Ops</button>
+      <span class="spacer"></span>
+      <span class="count" id="count">1 / 8</span>
+      <button id="prev">Prev</button>
+      <button id="next" class="primary">Next</button>
+    </nav>
+    <div class="bar"><div id="progress"></div></div>
+
+    <section class="slide on" data-section="0">
+      <div class="kicker">Proposal · agent-tools</div>
+      <h1>Turn-key Jenkins from the command line</h1>
+      <p>Run Jenkins as a Docker controller, keep all state on volumes, and drive the entire lifecycle from one Makefile: build, start, upgrade, plugins, backup, and teardown.</p>
+      <div class="stats">
+        <div class="stat"><strong>Image</strong><span>custom-jenkins-docker</span></div>
+        <div class="stat"><strong>Volume</strong><span>jobs, plugins, config</span></div>
+        <div class="stat"><strong>Makefile</strong><span>the operator CLI</span></div>
+        <div class="stat"><strong>Backup</strong><span>full jenkins_home copy</span></div>
+      </div>
+      <div class="callout"><b>The product is the command catalog</b>Operators do not click through a controller to keep Jenkins healthy. They run <code>make</code> targets against a named container, <code>jenkins-controller</code>.</div>
+    </section>
+
+    <section class="slide" data-section="0">
+      <div class="kicker">01  The problem</div>
+      <h2>Host-installed Jenkins is a snowflake</h2>
+      <p>A traditional Jenkins host mixes OS packages, plugin drift, and ad-hoc backups. Upgrades become events. This proposal treats Jenkins as disposable compute plus durable state.</p>
+      <table>
+        <thead><tr><th>Today</th><th>With Docker Jenkins</th></tr></thead>
+        <tbody>
+          <tr><td>Upgrade means touching a long-lived host</td><td>Rebuild the image; restart the container</td></tr>
+          <tr><td>Plugin set lives only on that machine</td><td>Declared in plugins.txt; updated via CLI</td></tr>
+          <tr><td>Jobs and config tied to the OS install</td><td>Persisted on NFS or a named Docker volume</td></tr>
+          <tr><td>Backups are optional and informal</td><td>make jenkins-bulk-backup copies the whole home</td></tr>
+          <tr><td>Lifecycle is tribal knowledge</td><td>Makefile is the runbook</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="slide" data-section="2">
+      <div class="kicker">02  The proposal</div>
+      <h2>Three parts. One operating model.</h2>
+      <div class="cards">
+        <div class="card"><span class="tag">Disposable</span><h3>Docker controller</h3><p><code>custom-jenkins-docker</code> from <code>jenkins/jenkins:lts-jdk21</code>, with Docker CLI and a pinned plugin list baked in. Rebuild to upgrade the platform.</p></div>
+        <div class="card"><span class="tag">Durable</span><h3>Volumes</h3><p><code>/var/jenkins_home</code> is never in the image. Production binds <code>/srv/nfs_share</code>. Plugin-upgrade mode uses the named volume <code>jenkins-vol</code>.</p></div>
+        <div class="card"><span class="tag">CLI</span><h3>Makefile</h3><p>One file in <code>docker/images/</code> orchestrates image builds, start and stop, plugin updates, shell access, and full backups.</p></div>
+      </div>
+      <p class="note">Multi-arch builder agents (<code>builder-amd64</code>, <code>arm64v8</code>, and others) are the same catalog — not a second ops story.</p>
+    </section>
+
+    <section class="slide" data-section="2">
+      <div class="kicker">03  Architecture</div>
+      <h2>The container is cattle. The volume is the farm.</h2>
+      <table>
+        <thead><tr><th>Layer</th><th>What it is</th><th>What survives a rebuild</th></tr></thead>
+        <tbody>
+          <tr><td>Image</td><td>custom-jenkins-docker · LTS JDK 21 · plugins.txt</td><td>Nothing. Recreate it on purpose.</td></tr>
+          <tr><td>Container</td><td>jenkins-controller · ports 8080 and 50000 · --restart=on-failure</td><td>Nothing. Stop and rm, then start again.</td></tr>
+          <tr><td>Volume</td><td>/var/jenkins_home via NFS or jenkins-vol</td><td>Jobs, credentials, plugin data, history.</td></tr>
+          <tr><td>Host socket</td><td>/var/run/docker.sock mounted into the controller</td><td>Lets pipelines talk to Docker on the host.</td></tr>
+        </tbody>
+      </table>
+      <pre>make jenkins-start
+# docker run …
+#   -v /var/run/docker.sock:/var/run/docker.sock \
+#   -v /srv/nfs_share:/var/jenkins_home \
+#   -p 8080:8080 -p 50000:50000 \
+#   --restart=on-failure custom-jenkins-docker</pre>
+    </section>
+
+    <section class="slide" data-section="4">
+      <div class="kicker">04  Persistence</div>
+      <h2>Two volume modes, one Jenkins home</h2>
+      <div class="cols">
+        <div>
+          <h3>Production start</h3>
+          <p><code>make jenkins-start</code> bind-mounts the NFS share at <code>/srv/nfs_share</code> onto <code>/var/jenkins_home</code>. Jobs and configuration live off-box, so the controller can move or be rebuilt without losing the instance.</p>
+          <p class="note">Optional helper: <code>make-nfs-docker-volume</code> creates a Docker NFS volume pointed at the same share.</p>
+        </div>
+        <div>
+          <h3>Forced plugin upgrade</h3>
+          <p><code>make jenkins-start-plugin-upgrade</code> uses the named volume <code>jenkins-vol</code> and sets <code>PLUGINS_FORCE_UPGRADE=true</code>. Same lifecycle targets, different persistence backend for upgrade windows.</p>
+          <div class="callout"><b>Image vs home</b>New images omit unsupported Blue Ocean plugins. Existing homes still need Script Console cleanup, then a restart.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="4">
+      <div class="kicker">05  The CLI</div>
+      <h2>The Makefile is the turn-key control plane</h2>
+      <p>Operators do not need a second dashboard. These targets are the runbook.</p>
+      <table>
+        <thead><tr><th>Need</th><th>Command</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Build controller</td><td>make custom-jenkins-docker</td><td>Image from jendock/</td></tr>
+          <tr><td>Run</td><td>make jenkins-start</td><td>Detached controller + NFS home</td></tr>
+          <tr><td>Stop</td><td>make jenkins-stop</td><td>docker stop and rm</td></tr>
+          <tr><td>Drop image</td><td>make jenkins-delete</td><td>Remove custom-jenkins-docker</td></tr>
+          <tr><td>Upgrade plugins</td><td>make jenkins-update-plugins</td><td>CLI install + safe-restart</td></tr>
+          <tr><td>Force plugin mode</td><td>make jenkins-start-plugin-upgrade</td><td>Named volume + env flag</td></tr>
+          <tr><td>Full backup</td><td>make jenkins-bulk-backup</td><td>Copy /var/jenkins_home</td></tr>
+          <tr><td>Inspect</td><td>make jenkins-shell / -root</td><td>Exec into the container</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="slide" data-section="6">
+      <div class="kicker">06  Day-2 operations</div>
+      <h2>Upgrades, plugins, and full backups are first-class</h2>
+      <div class="cols">
+        <div>
+          <h3>Plugin management</h3>
+          <p>The image installs from <code>plugins.txt</code> at build time. On a running controller, <code>jenkins-get-cli</code> fetches <code>jenkins-cli.jar</code>, <code>jenkins-list-plugins</code> audits the set, and <code>jenkins-update-plugins</code> installs pending updates then <code>safe-restart</code>.</p>
+          <p>Unsupported Blue Ocean plugins are removed with <code>script-console-delete-blueocean-groovy</code> in Manage Jenkins → Script Console.</p>
+        </div>
+        <div>
+          <h3>Full backup</h3>
+          <pre>make jenkins-bulk-backup
+# mkdir /tmp/jenkins-full-backup/&lt;timestamp&gt;
+# docker cp jenkins-controller:/var/jenkins_home \
+#   /tmp/jenkins-full-backup/&lt;timestamp&gt;</pre>
+          <p class="note">Timestamped directory. Whole home: jobs, plugins, secrets, history. Pair this with image rebuilds so you can roll forward or back.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="6">
+      <div class="kicker">07  The ask</div>
+      <h2>Adopt the Makefile as how we run Jenkins</h2>
+      <p>This is not a new Jenkins product. It is a turn-key command-line management mechanism: Docker for the runtime, volumes for the instance, Make for every lifecycle action.</p>
+      <div class="stats three">
+        <div class="stat"><strong>1</strong><span>Makefile to learn</span></div>
+        <div class="stat"><strong>0</strong><span>Host package upgrades</span></div>
+        <div class="stat"><strong>Full</strong><span>jenkins_home backups</span></div>
+      </div>
+      <div class="callout"><b>Standard operating sequence</b><code>make custom-jenkins-docker</code> → <code>make jenkins-start</code> → <code>make jenkins-bulk-backup</code> before change → <code>make jenkins-update-plugins</code> or rebuild the image → <code>make jenkins-stop</code> / <code>make jenkins-start</code> to roll the container.</div>
+      <p class="note">Source of truth: <code>docker/images/Makefile</code> in agent-tools. Image definition: <code>docker/images/jendock/</code>.</p>
+    </section>
+  </div>
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const pills = [...document.querySelectorAll(".pill")];
+    let i = 0;
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, idx) => s.classList.toggle("on", idx === i));
+      document.getElementById("count").textContent = (i + 1) + " / " + slides.length;
+      document.getElementById("progress").style.width = ((i + 1) / slides.length * 100) + "%";
+      const section = Number(slides[i].dataset.section);
+      pills.forEach((p) => p.classList.toggle("active", Number(p.dataset.jump) === section));
+    }
+    document.getElementById("prev").onclick = () => show(i - 1);
+    document.getElementById("next").onclick = () => show(i + 1);
+    pills.forEach((p) => p.onclick = () => show(Number(p.dataset.jump)));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") show(i + 1);
+      if (e.key === "ArrowLeft") show(i - 1);
+    });
+    show(0);
+  </script>
+</body>
+</html>
