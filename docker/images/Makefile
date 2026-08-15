@@ -33,28 +33,28 @@ all:
 	make custom-jenkins-docker
 
 builder-amd64:
-	cd amd64 && docker build -t builder-amd64 .
+	cd agents/amd64 && docker build -t builder-amd64 .
 
 builder-arm64v8:
-	cd arm64v8 && docker build --platform linux/arm64 -t builder-arm64v8 . 
+	cd agents/arm64v8 && docker build --platform linux/arm64 -t builder-arm64v8 . 
 
 builder-arm32v7:
-	cd arm32v7 && docker build -t builder-arm32v7 .
+	cd agents/arm32v7 && docker build -t builder-arm32v7 .
 
 custom-jenkins-docker:
-	cd jendock && docker build -t custom-jenkins-docker .
+	cd controller && docker build -t custom-jenkins-docker .
 
 get-secret:
 	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 builder-i386:
-	cd i386 && docker build -t builder-i386 .
+	cd agents/i386 && docker build -t builder-i386 .
 
 builder-ppc64le:
-	cd ppc64le && docker build -t builder-ppc64le --platform ppc64le .
+	cd agents/ppc64le && docker build -t builder-ppc64le --platform ppc64le .
 
 builder-s390x:
-	cd s390x && docker build --platform linux/s390x -t builder-s390x .
+	cd agents/s390x && docker build --platform linux/s390x -t builder-s390x .
 
 # stop the container
 jenkins-stop:
@@ -68,14 +68,15 @@ jenkins-start:
 		--name jenkins-controller \
 		-d \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v /srv/nfs_share:/var/jenkins_home \
+		-v jenkins-vol:/var/jenkins_home \
+		-v jenkins-bkup:/backup \
 		-p 8080:8080 \
 		-p 50000:50000 \
 		--restart=on-failure custom-jenkins-docker
 
 # remove the custom-jenkins-dockre image
 jenkins-delete:
-	docker image rm custom-jenkins-docker
+	docker image rmi custom-jenkins-docker
 
 jenkins-start-plugin-upgrade:
 	docker run \
@@ -112,10 +113,10 @@ jenkins-push-token:
 
 # copy the tools to docker container in /usr/local/bin
 jenkins-push-tools:
-	docker cp list-jobs jenkins-controller:/usr/local/bin
-	docker cp list-plugins jenkins-controller:/usr/local/bin
-	docker cp update-plugins jenkins-controller:/usr/local/bin
-	docker cp list-plugins jenkins-controller:/usr/share/jenkins
+	docker cp scripts/list-jobs jenkins-controller:/usr/local/bin
+	docker cp scripts/list-plugins jenkins-controller:/usr/local/bin
+	docker cp scripts/update-plugins jenkins-controller:/usr/local/bin
+	docker cp scripts/list-plugins jenkins-controller:/usr/share/jenkins
 
 # will return a list of jobs to stdout
 # depends on toke and list-jobs script on docker-container

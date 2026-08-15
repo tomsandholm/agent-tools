@@ -33,6 +33,12 @@ The Makefile builds **Docker images** for Jenkins and multi-arch **builder agent
 - **`jenkins-list-jobs`** / **`jenkins-list-plugins`** — Run list scripts inside the container (quiet recipes for piping to files).
 - **`jenkins-update-plugins`** — Run `update-plugins` in the container.
 
+### Script Console: remove unsupported Blue Ocean plugins
+
+Blue Ocean is out of support and is no longer listed in `plugins.txt`, so new controller images do not install it. An existing Jenkins home can still have the Blue Ocean plugin set installed.
+
+- **`script-console-delete-blueocean-groovy`** (copy also under `docker/images/controller/`) — Groovy for the Jenkins **Script Console** (`Manage Jenkins` → **Script Console**, or `/script`). Paste the file contents and run it. It uninstalls every plugin whose short name is `blueocean` or starts with `blueocean`. Restart Jenkins afterward so the uninstall takes effect.
+
 ### Mechanics
 
 - **`.ONESHELL`** — Each recipe runs in one shell.

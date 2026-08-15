@@ -1,48 +1,97 @@
 # Docker Images Management
 
-This repository contains Dockerfiles and a Makefile to build and manage Jenkins controller and agent images for various architectures.
+This directory contains the core infrastructure for building and managing a multi-architecture Jenkins environment using Docker. It includes Dockerfiles for various CPU architectures and a centralized `Makefile` to orchestrate builds, deployment, and administrative tasks.
 
-## Overview
+## Makefile Summary
 
-The project is organized to support multi-architecture builds for Jenkins agents and a customized Jenkins controller image. The root `Makefile` provides a comprehensive set of commands for building images, managing containers, and performing administrative tasks.
+The `Makefile` serves as the primary entry point for:
+1.  **Building Multi-Arch Images:** Creating Jenkins agent images for `amd64`, `arm64`, `armv7`, `i386`, `ppc64le`, and `s390x`.
+2.  **Controller Management:** Building, starting, stopping, and upgrading the Jenkins controller image.
+3.  **Administrative Utilities:** Automated backups, tool injection, plugin management, and shell access.
 
-## Makefile Targets
+---
 
-### Build Targets
+## Makefile Targets & Examples
 
-- `make all`: Default target, builds the custom Jenkins controller image (`custom-jenkins-docker`).
-- `make custom-jenkins-docker`: Builds the Jenkins controller image from the `jendock/` directory.
-- `make builder-amd64`: Builds the Jenkins agent image for the `amd64` architecture.
-- `make builder-arm64v8`: Builds the Jenkins agent image for the `arm64v8` architecture.
-- `make builder-arm32v7`: Builds the Jenkins agent image for the `arm32v7` architecture.
-- `make builder-i386`: Builds the Jenkins agent image for the `i386` architecture.
-- `make builder-ppc64le`: Builds the Jenkins agent image for the `ppc64le` architecture.
-- `make builder-s390x`: Builds the Jenkins agent image for the `s390x` architecture.
+### 1. Build Targets
+Used to generate Docker images for the Jenkins controller and various agent architectures.
 
-### Management Targets
+| Target | Description | Example |
+| :--- | :--- | :--- |
+| `all` | Default target; builds the controller image. | `make all` |
+| `custom-jenkins-docker` | Builds the custom Jenkins controller image. | `make custom-jenkins-docker` |
+| `builder-amd64` | Builds the `amd64` agent image. | `make builder-amd64` |
+| `builder-arm64v8` | Builds the `arm64v8` agent image (requires `cc-tools`). | `make builder-arm64v8` |
+| `builder-ppc64le` | Builds the `ppc64le` agent image. | `make builder-ppc64le` |
 
-- `make jenkins-start`: Starts the Jenkins controller container (`jenkins-controller`) in the background. It mounts `/var/run/docker.sock` and a local NFS share `/srv/nfs_share` to `/var/jenkins_home`.
-- `make jenkins-stop`: Stops and removes the `jenkins-controller` container.
-- `make jenkins-delete`: Deletes the `custom-jenkins-docker` image.
-- `make jenkins-start-plugin-upgrade`: Starts the Jenkins controller with the `PLUGINS_FORCE_UPGRADE=true` environment variable enabled.
-- `make jenkins-shell`: Opens an interactive bash shell in the running Jenkins container as the `jenkins` user.
-- `make jenkins-shell-root`: Opens an interactive bash shell in the running Jenkins container as the `root` user.
+**Example: Building a specific agent**
+```bash
+# Build the ARM64v8 agent image
+make builder-arm64v8
+```
 
-### Administrative & Utility Targets
+---
 
-- `make get-secret`: Displays the initial Jenkins admin password from the host system.
-- `make jenkins-get-cli`: Downloads the `jenkins-cli.jar` into the container if it doesn't already exist.
-- `make jenkins-bulk-backup`: Creates a timestamped backup of the `/var/jenkins_home` directory from the container to `/tmp/jenkins-full-backup/`.
-- `make jenkins-push-token`: Copies a `token` file from the host to the container's `/usr/share/jenkins` directory.
-- `make jenkins-push-tools`: Copies utility scripts (`list-jobs`, `list-plugins`, `update-plugins`) from the root directory to the container's `/usr/local/bin`.
-- `make jenkins-list-jobs`: Lists Jenkins jobs using the `list-jobs` script inside the container.
-- `make jenkins-list-plugins`: Lists installed Jenkins plugins.
-- `make jenkins-update-plugins`: Executes the `update-plugins` script inside the container.
+### 2. Container Lifecycle
+Targets for managing the running Jenkins controller container.
 
-## Multi-Architecture Support
+| Target | Description | Example |
+| :--- | :--- | :--- |
+| `jenkins-start` | Starts the controller with NFS mounts and port mapping. | `make jenkins-start` |
+| `jenkins-stop` | Stops and removes the `jenkins-controller` container. | `make jenkins-stop` |
+| `jenkins-delete` | Removes the `custom-jenkins-docker` image. | `make jenkins-delete` |
+| `jenkins-start-plugin-upgrade` | Starts Jenkins with forced plugin upgrades enabled. | `make jenkins-start-plugin-upgrade` |
 
-The repository includes subdirectories for each supported architecture (e.g., `amd64/`, `arm64v8/`, etc.), each containing its own `Dockerfile`.
+**Example: Starting Jenkins with Persistence**
+```bash
+# Starts the container with /srv/nfs_share mounted to /var/jenkins_home
+make jenkins-start
+```
 
-## Librebooking (Multi-Service)
+---
 
-The `multi/` directory contains a separate setup for "Librebooking", which includes its own `Makefile` and `docker-compose.yml` for managing a database and PHP application suite.
+### 3. Administrative & Maintenance
+Tools for interacting with the running Jenkins instance and performing maintenance.
+
+| Target | Description | Example |
+| :--- | :--- | :--- |
+| `get-secret` | Retrieves the initial admin password from the host. | `make get-secret` |
+| `jenkins-shell` | Opens a bash shell as the `jenkins` user. | `make jenkins-shell` |
+| `jenkins-shell-root` | Opens a bash shell as the `root` user. | `make jenkins-shell-root` |
+| `jenkins-bulk-backup` | Creates a timestamped backup of `jenkins_home`. | `make jenkins-bulk-backup` |
+| `jenkins-push-tools` | Injects management scripts into the container. | `make jenkins-push-tools` |
+
+**Example: Performing a Backup**
+```bash
+# Creates a backup in /tmp/jenkins-full-backup/MMDDYYYY-HH:MM:SS
+make jenkins-bulk-backup
+```
+
+---
+
+### 4. Plugin & Job Management
+Targets for auditing and updating Jenkins resources via CLI.
+
+| Target | Description | Example |
+| :--- | :--- | :--- |
+| `jenkins-list-plugins` | Lists installed plugins to stdout. | `make jenkins-list-plugins` |
+| `jenkins-list-jobs` | Lists all Jenkins jobs. | `make jenkins-list-jobs` |
+| `jenkins-update-plugins` | Runs the update script inside the container. | `make jenkins-update-plugins` |
+
+**Example: Auditing Plugins**
+```bash
+# List all plugins and save to a file for tracking
+make jenkins-list-plugins > installed_plugins.txt
+```
+
+---
+
+## Directory Structure
+
+- `agents/`: Jenkins Agent Dockerfiles grouped by architecture (amd64, arm, etc.).
+- `controller/`: Dockerfile and configuration for the Jenkins controller.
+- `applications/`: Standalone application images and multi-service setups.
+  - `ansible/`: Ansible-specific Docker configuration.
+  - `librebooking/`: Multi-service Librebooking setup (includes separate Makefile).
+  - `spectcl/`: SpecTcl related images for Ubuntu 16.04 and Debian.
+- `scripts/`: Administrative and management scripts pushed to the container or used for setup.
